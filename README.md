@@ -1,4 +1,4 @@
-# scholar-app
+# gestion-scolaire-isga
 
 Application mobile **React Native (Expo)** de gestion scolaire — Étudiants, Matières et Notes —
 consommant une API REST, avec génération du relevé de notes en PDF.
