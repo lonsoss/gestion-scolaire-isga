@@ -164,17 +164,102 @@ Codes : `200` succès · `201` création · `400` champs requis manquants · `40
 
 ## Partie 2 — Application mobile
 
-> En cours de développement.
+### Démarrage
+
+```bash
+cd mobile
+npm install
+npm start          # puis scanner le QR code avec Expo Go
+npm run web        # ou lancer dans le navigateur
+npm run android    # ou sur un émulateur Android
+```
+
+**Expo SDK 54** — Expo Go n'accepte que les deux ou trois derniers SDK. Si l'application
+affiche « Project is incompatible with this version of Expo Go », mettre Expo Go à jour depuis
+le store.
+
+### ⚠️ Configurer l'adresse du backend
+
+Tout passe par une **instance axios unique** dans [`mobile/src/api/client.js`](mobile/src/api/client.js),
+seul fichier à modifier si l'adresse change :
+
+```js
+const HOST_LAN = '192.168.100.2'; // ← l'IP de la machine qui fait tourner WildFly
+const HOST = Platform.OS === 'web' ? 'localhost' : HOST_LAN;
+```
+
+L'hôte dépend de la plateforme, et ce n'est pas un détail : dans un navigateur le code s'exécute
+sur la machine de développement, donc `localhost` désigne bien WildFly ; sur un téléphone il
+s'exécute sur **l'appareil**, où `localhost` désigne le téléphone lui-même.
+
+Trouver l'IP LAN : `ipconfig` sous Windows, ligne « Adresse IPv4 » de la carte Wi-Fi. C'est aussi
+celle qu'affiche Metro au démarrage.
+
+Côté serveur, démarrer WildFly avec `standalone.bat -b 0.0.0.0` (voir plus haut), et vérifier que
+le pare-feu autorise les ports **8080** et **8081**. Sous Windows, une règle bloquant `node.exe`
+prend le pas sur une règle autorisant le port : la vérifier si Metro reste injoignable.
+
+### Structure
+
+```
+mobile/src/
+├── api/          client.js (instance axios) + un service par entité
+├── components/   Bouton · ChampTexte · Selecteur · CarteListe · Loader
+├── screens/      Accueil · 3 × (Liste + Formulaire) · Relevés · Relevé
+├── utils/        releve.js (calcul) · pdfReleve.js (HTML) · dialogues.js
+└── theme.js      palette et espacements
+```
+
+Un écran liste et un écran formulaire par entité, ce dernier servant à la création comme à la
+modification, distinguées par les paramètres de navigation. Navigation en pile avec
+`react-navigation`, styles en `StyleSheet` et Flexbox, listes en `FlatList`.
+
+### Relations entre entités
+
+Une note est rattachée à un étudiant **et** à une matière via des listes de sélection alimentées
+par l'API, jamais par saisie libre d'identifiant — la table `scores` n'ayant aucune clé étrangère,
+la cohérence ne peut être garantie que côté client.
 
 ### Calcul de la moyenne du relevé
 
 - **Notes sur 20.** Le backend stocke un `DOUBLE` sans borne : c'est l'application qui valide la
-  plage 0–20 à la saisie. Attention, `DataInitializer` insère des notes d'exemple sur 100
-  (85.5 et 92.0) quand la base est vide — elles réapparaîtront à chaque réinitialisation et sont
-  à corriger.
+  plage 0–20 à la saisie.
 - Moyenne des différents examens d'une matière, **puis** moyenne pondérée par `credits` :
   `Σ(moyenne_matière × credits) / Σ(credits)`
 - Mentions au barème français : ≥16 Très bien · ≥14 Bien · ≥12 Assez bien · ≥10 Passable.
 - Le bouton **« Télécharger le relevé »** ne s'active que lorsque l'étudiant a au moins une note
   dans **chaque** matière ; sinon il reste désactivé et les matières manquantes sont affichées.
-- Export PDF via `expo-print`, puis partage/enregistrement via `expo-sharing`.
+
+### Relevé PDF
+
+Généré par `expo-print` à partir d'un HTML construit dans
+[`pdfReleve.js`](mobile/src/utils/pdfReleve.js), puis partagé via `expo-sharing`. Le document est
+mis en page pour l'impression : format A4, en-tête institutionnel avec le logo, tableau
+matière / coefficient / note, moyenne et mention, zone de signature, coordonnées de
+l'établissement en pied de page.
+
+Le logo est embarqué en base64 ([`logoIsga.js`](mobile/src/utils/logoIsga.js)) : `expo-print` rend
+le HTML hors du bundle de l'application, une balise `<img>` pointant vers `./assets/` n'y
+résoudrait rien.
+
+Sur navigateur, `printToFileAsync` n'existe pas — on bascule sur `printAsync`, qui ouvre la boîte
+d'impression et son option « Enregistrer au format PDF ».
+
+### Identité visuelle
+
+La palette de [`theme.js`](mobile/src/theme.js) reprend les couleurs de l'établissement : rouge
+`#D91D36` et gris `#5E5E5D`, échantillonnés directement dans les pixels du logo. Aucun code
+couleur n'est écrit ailleurs que dans ce fichier.
+
+### Périmètre technique
+
+Le projet se limite aux notions du cours : composants fonctionnels, `View` / `Text` /
+`StyleSheet` / Flexbox / `FlatList` / `Image` / `TextInput`, State et Props, `react-navigation`
+(`NavigationContainer` + `createStackNavigator`), et **axios** avec `async/await`.
+
+Axios plutôt que `fetch` parce qu'il analyse le JSON automatiquement et lève une erreur sur les
+statuts non-2xx, là où `fetch` considère un 404 comme un succès — la gestion d'erreurs en
+`try/catch` en devient bien plus fiable.
+
+Seule exception au périmètre : `expo-print` et `expo-sharing` pour l'export PDF. Ni Redux ni
+TypeScript.
