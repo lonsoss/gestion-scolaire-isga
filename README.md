@@ -14,7 +14,7 @@ Le projet se compose de deux parties **volontairement séparées** :
 | Dossier | Contenu | Dépôt |
 |---|---|---|
 | `mobile/` | L'application React Native / Expo — **le livrable de ce dépôt** | ce dépôt |
-| `backend/` | L'API REST fournie par Mr EnnachatRedwan [EnnachatRedwan/scholar-rest-soap](https://github.com/EnnachatRedwan/scholar-rest-soap) |
+| `backend/` | L'API REST fournie par Mr EnnachatRedwan | [EnnachatRedwan/scholar-rest-soap](https://github.com/EnnachatRedwan/scholar-rest-soap) |
 
 > `backend/` est **ignoré par git** (voir `.gitignore`) : c'est le dépôt de Mr EnnachatRedwan, il garde son
 > propre historique et n'est pas modifié. Ce dépôt ne contient que le travail personnel.
