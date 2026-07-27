@@ -1,7 +1,7 @@
 # scholar-app
 
 Application mobile **React Native (Expo)** de gestion scolaire — Étudiants, Matières et Notes —
-consommant une API REST Jakarta EE, avec génération du relevé de notes en PDF.
+consommant une API REST, avec génération du relevé de notes en PDF.
 
 Projet réalisé dans le cadre du cours React Native (M. Chougdali).
 
@@ -14,9 +14,9 @@ Le projet se compose de deux parties **volontairement séparées** :
 | Dossier | Contenu | Dépôt |
 |---|---|---|
 | `mobile/` | L'application React Native / Expo — **le livrable de ce dépôt** | ce dépôt |
-| `backend/` | L'API REST fournie par le professeur | [EnnachatRedwan/scholar-rest-soap](https://github.com/EnnachatRedwan/scholar-rest-soap) |
+| `backend/` | L'API REST fournie par Mr EnnachatRedwan [EnnachatRedwan/scholar-rest-soap](https://github.com/EnnachatRedwan/scholar-rest-soap) |
 
-> `backend/` est **ignoré par git** (voir `.gitignore`) : c'est le dépôt du professeur, il garde son
+> `backend/` est **ignoré par git** (voir `.gitignore`) : c'est le dépôt de Mr EnnachatRedwan, il garde son
 > propre historique et n'est pas modifié. Ce dépôt ne contient que le travail personnel.
 
 ---
@@ -42,7 +42,7 @@ Il n'y a donc pas de `application.properties` : la configuration de la base vit 
 ### Procédure
 
 ```bash
-# 1. Récupérer l'API du prof
+# 1. Récupérer l'API
 git clone https://github.com/EnnachatRedwan/scholar-rest-soap.git backend
 
 # 2. Créer la base (les tables et les données d'exemple sont créées automatiquement
